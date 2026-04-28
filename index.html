@@ -157,7 +157,7 @@
 
     .charge-mode {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
       margin-top: 16px;
     }
@@ -323,13 +323,17 @@
         <span class="suffix">%</span>
       </div>
       <div class="charge-mode" role="group" aria-label="Lademodus wählen">
-        <button id="mode13" class="mode-button" type="button" data-power="2.9">
+        <button id="mode13" class="mode-button active" type="button" data-power="2.9">
           <span class="mode-title">13A</span>
           <span class="mode-subtitle">Daheim · 2,9 kW</span>
         </button>
-        <button id="mode16" class="mode-button active" type="button" data-power="3.6">
+        <button id="mode16" class="mode-button" type="button" data-power="3.4">
           <span class="mode-title">16A</span>
-          <span class="mode-subtitle">Öffentlich · 3,6 kW</span>
+          <span class="mode-subtitle">Öffentlich · 3,4 kW</span>
+        </button>
+        <button id="mode32" class="mode-button" type="button" data-power="7.4">
+          <span class="mode-title">32A</span>
+          <span class="mode-subtitle">Öffentlich · 7,4 kW</span>
         </button>
       </div>
       <button id="calculate" type="button">Ladezeit berechnen</button>
@@ -368,7 +372,7 @@
       <div class="facts-list">
         <div class="fact">
           <div class="fact-label">Wallbox Ladeleistung</div>
-          <div id="factPower" class="fact-value">3,6 kW</div>
+          <div id="factPower" class="fact-value">2,9 kW</div>
         </div>
         <div class="fact">
           <div class="fact-label">Akkukapazität brutto</div>
@@ -399,13 +403,15 @@
     const effectiveCapacityKwh = usableCapacityKwh * stateOfHealth;
     const chargeModes = {
       13: 2.9,
-      16: 3.6
+      16: 3.4,
+      32: 7.4
     };
-    let selectedAmps = 16;
+    let selectedAmps = 13;
 
     const socInput = document.getElementById("soc");
     const mode13Button = document.getElementById("mode13");
     const mode16Button = document.getElementById("mode16");
+    const mode32Button = document.getElementById("mode32");
     const calculateButton = document.getElementById("calculate");
     const errorBox = document.getElementById("error");
     const duration80 = document.getElementById("duration80");
@@ -462,6 +468,7 @@
     function updateModeButtons() {
       mode13Button.classList.toggle("active", selectedAmps === 13);
       mode16Button.classList.toggle("active", selectedAmps === 16);
+      mode32Button.classList.toggle("active", selectedAmps === 32);
       factPower.textContent = `${formatKw(chargeModes[selectedAmps])} kW`;
       factCapacity.textContent = `${effectiveCapacityKwh.toLocaleString("de-DE", {
         minimumFractionDigits: 2,
@@ -507,6 +514,11 @@
     });
     mode16Button.addEventListener("click", () => {
       selectedAmps = 16;
+      updateModeButtons();
+      renderCalculation();
+    });
+    mode32Button.addEventListener("click", () => {
+      selectedAmps = 32;
       updateModeButtons();
       renderCalculation();
     });
