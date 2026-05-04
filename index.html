@@ -157,7 +157,7 @@
 
     .charge-mode {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
       margin-top: 16px;
     }
@@ -323,6 +323,10 @@
         <span class="suffix">%</span>
       </div>
       <div class="charge-mode" role="group" aria-label="Lademodus wählen">
+        <button id="mode6" class="mode-button" type="button" data-power="1.4">
+          <span class="mode-title">6A</span>
+          <span class="mode-subtitle">Schonend · 1,4 kW</span>
+        </button>
         <button id="mode13" class="mode-button active" type="button" data-power="2.9">
           <span class="mode-title">13A</span>
           <span class="mode-subtitle">Daheim · 2,9 kW</span>
@@ -402,6 +406,7 @@
     const stateOfHealth = 0.93;
     const effectiveCapacityKwh = usableCapacityKwh * stateOfHealth;
     const chargeModes = {
+      6: 1.4,
       13: 2.9,
       16: 3.4,
       32: 7.4
@@ -409,6 +414,7 @@
     let selectedAmps = 13;
 
     const socInput = document.getElementById("soc");
+    const mode6Button = document.getElementById("mode6");
     const mode13Button = document.getElementById("mode13");
     const mode16Button = document.getElementById("mode16");
     const mode32Button = document.getElementById("mode32");
@@ -466,6 +472,7 @@
     }
 
     function updateModeButtons() {
+      mode6Button.classList.toggle("active", selectedAmps === 6);
       mode13Button.classList.toggle("active", selectedAmps === 13);
       mode16Button.classList.toggle("active", selectedAmps === 16);
       mode32Button.classList.toggle("active", selectedAmps === 32);
@@ -507,6 +514,11 @@
     }
 
     calculateButton.addEventListener("click", renderCalculation);
+    mode6Button.addEventListener("click", () => {
+      selectedAmps = 6;
+      updateModeButtons();
+      renderCalculation();
+    });
     mode13Button.addEventListener("click", () => {
       selectedAmps = 13;
       updateModeButtons();
