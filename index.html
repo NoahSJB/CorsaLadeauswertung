@@ -375,8 +375,12 @@
       <h2>Berechnungsbasis</h2>
       <div class="facts-list">
         <div class="fact">
-          <div class="fact-label">Wallbox Ladeleistung</div>
+          <div class="fact-label">Netz-Ladeleistung</div>
           <div id="factPower" class="fact-value">2,9 kW</div>
+        </div>
+        <div class="fact">
+          <div class="fact-label">Effektiv im Akku für Rechnung</div>
+          <div id="factEffectivePower" class="fact-value">2,67 kW</div>
         </div>
         <div class="fact">
           <div class="fact-label">Akkukapazität brutto</div>
@@ -396,7 +400,7 @@
         </div>
       </div>
       <p class="footnote">
-        Die Berechnung nutzt 45 kWh netto mit 93% SoH, also effektiv 41,85 kWh. Gerechnet wird idealisiert mit konstanter Ladeleistung; in der Praxis kann es je nach Temperatur und Ladeverlauf leicht abweichen.
+        Die Berechnung nutzt 45 kWh netto mit 93% SoH, also effektiv 41,85 kWh. Zusätzlich werden Ladeverluste berücksichtigt, weil am Kabel gezogene Energie nicht 1:1 im Akku ankommt. Gerade bei 6A ist die reale Ladegeschwindigkeit spürbar niedriger.
       </p>
     </section>
   </main>
@@ -406,10 +410,22 @@
     const stateOfHealth = 0.93;
     const effectiveCapacityKwh = usableCapacityKwh * stateOfHealth;
     const chargeModes = {
-      6: 1.4,
-      13: 2.9,
-      16: 3.4,
-      32: 7.4
+      6: {
+        wallPowerKw: 1.4,
+        batteryPowerKw: 1.25
+      },
+      13: {
+        wallPowerKw: 2.9,
+        batteryPowerKw: 2.67
+      },
+      16: {
+        wallPowerKw: 3.4,
+        batteryPowerKw: 3.16
+      },
+      32: {
+        wallPowerKw: 7.4,
+        batteryPowerKw: 6.96
+      }
     };
     let selectedAmps = 13;
 
@@ -426,6 +442,7 @@
     const ref90 = document.getElementById("ref90");
     const ref100 = document.getElementById("ref100");
     const factPower = document.getElementById("factPower");
+    const factEffectivePower = document.getElementById("factEffectivePower");
     const factCapacity = document.getElementById("factCapacity");
 
     function formatDuration(hoursDecimal) {
@@ -461,7 +478,7 @@
       }
 
       const energyNeeded = ((targetSoc - currentSoc) / 100) * effectiveCapacityKwh;
-      return energyNeeded / chargeModes[selectedAmps];
+      return energyNeeded / chargeModes[selectedAmps].batteryPowerKw;
     }
 
     function formatKw(value) {
@@ -476,7 +493,8 @@
       mode13Button.classList.toggle("active", selectedAmps === 13);
       mode16Button.classList.toggle("active", selectedAmps === 16);
       mode32Button.classList.toggle("active", selectedAmps === 32);
-      factPower.textContent = `${formatKw(chargeModes[selectedAmps])} kW`;
+      factPower.textContent = `${formatKw(chargeModes[selectedAmps].wallPowerKw)} kW`;
+      factEffectivePower.textContent = `${formatKw(chargeModes[selectedAmps].batteryPowerKw)} kW`;
       factCapacity.textContent = `${effectiveCapacityKwh.toLocaleString("de-DE", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
